@@ -1,0 +1,50 @@
+<html>
+<head>
+  <style type="text/css">
+  body {width:300px; height:300px;}
+  table {margin-left: 20px;}
+  tr{margin-top: 5px;}
+  </style>
+  <script src="/scripts/jquery.js"></script>
+<!--  <script src="/scripts/iframeResizer.min.js"></script> -->
+  <script src="/popup/popup.js"></script>
+  <style>iframe{width:200px;height:200px;border:none;margin-left: -35px}</style>
+  <link type="text/css" href="/popup/popup.css" rel="stylesheet"></link>
+  <link rel="stylesheet" href="/scripts/bootstrap.min.css" media="screen" title="no title" charset="utf-8">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css" media="screen" title="no title" charset="utf-8">
+  <script src="/scripts/bootstrap.min.js"></script>
+</head>
+<body>
+
+<table class="time">
+  <tbody>
+  <tr>
+      <td>
+          <p id="instruct">Schedule URL     </p>
+          <select id="quick-add-calendar-list" class="form-control" ></select>
+
+      </td>
+  </tr>
+  <tr>
+      <td>
+          <textarea rows="2" id="quick-add-event-title" class="form-control" placeholder=""></textarea>
+      </td>
+  </tr>
+    <tr>
+      <td>
+        <input type="text" class="form-control" value="" placeholder="20 mins" data-action='estTime'>
+      </td>
+
+    </tr>
+    <tr>
+        <td>
+            <button style="margin-top:10px" class="btn btn-primary" id="quick-add-button" >OK</button>
+        </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+</body>
+</html>
