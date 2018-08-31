@@ -18,7 +18,8 @@
   },
   "permissions": [
        "cookies",
-        "tabs",
+    "tts",
+    "tabs",
         "http://*/*",
         "storage",
        "identity",
