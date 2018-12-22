@@ -1,36 +1,40 @@
 /*Script entirely borrowed from https://github.com/cjkeilig/AddtoGCal/blob/master/browser_action.js
 * Credit goes to the author cjkeilig */
+
+function isLoggedIn(token) {
+  // The user is logged in if their token isn't expired
+  return jwt_decode(token).exp > Date.now() / 1000;
+}
 var browseraction = {};
 browseraction.QUICK_ADD_API_URL_= 'https://www.googleapis.com/calendar/v3/calendars/{calendarId}/events/quickAdd';
 browseraction.LIST_EVENTS = 'https://www.googleapis.com/calendar/v3/calendars/{calendarId}/events/?q=freetime';
 browseraction.UPDATE_EVENT= 'https://www.googleapis.com/calendar/v3/calendars/{calendarId}/events/{eventId}';
 browseraction.CALENDAR_LIST_API_URL_ = 'https://www.googleapis.com/calendar/v3/users/me/calendarList';
 browseraction.EVENT_TO_UPDATE ={};
+browseraction.getCalList = function(authToken) {
+  $.ajax(browseraction.CALENDAR_LIST_API_URL_, {
+    headers: {
+      'Authorization': 'Bearer ' + authToken
+    },
+    success: function(data) {
+      var dropDown = $('#quick-add-calendar-list');
+      for (var i = 0; i < data.items.length; i++) {
+        var calendar = data.items[i];
+        console.log(calendar);
+        if(calendar.accessRole === "owner"){
+          dropDown.append($('<option>', {
+            value: calendar.id,
+            text: calendar.id
+          }));
+        }
+      }
+      browseraction.listEvents('test',$('#quick-add-calendar-list').val());
+    }
+  });
+}
 $(document).ready(function(){
 
-  browseraction.getCalList = function() {
-    chrome.identity.getAuthToken({'interactive': true}, function (authToken) {
-      $.ajax(browseraction.CALENDAR_LIST_API_URL_, {
-        headers: {
-          'Authorization': 'Bearer ' + authToken
-        },
-        success: function(data) {
-          var dropDown = $('#quick-add-calendar-list');
-          for (var i = 0; i < data.items.length; i++) {
-            var calendar = data.items[i];
-            console.log(calendar);
-            if(calendar.accessRole === "owner"){
-              dropDown.append($('<option>', {
-                value: calendar.id,
-                text: calendar.id
-              }));
-            }
-          }
-          browseraction.listEvents('test',$('#quick-add-calendar-list').val());
-        }
-      });
-    });
-  }
+ 
   browseraction.createQuickAddEvent_ = function(text,calendarId) {
     var quickAddUrl = browseraction.QUICK_ADD_API_URL_.replace('{calendarId}', encodeURIComponent(calendarId)) + '?text=' + encodeURIComponent(text);
     chrome.identity.getAuthToken({'interactive': false}, function (authToken){
@@ -109,6 +113,28 @@ $(document).ready(function(){
     }, updateTabInfo.bind(this));
   }
 
-  browseraction.getCalList();
-  browseraction.share();
+ // browseraction.getCalList();
+ // browseraction.share();
+  const authResult = JSON.parse(localStorage.authResult || '{}');
+  const token = authResult.id_token;
+  if (token && isLoggedIn(token)) {
+    fetch(`https://${env.AUTH0_DOMAIN}/userinfo`, {
+      headers: {
+        'Authorization': `Bearer ${authResult.access_token}`
+      }
+    }).then(resp => resp.json()).then((profile) => {
+      var userId = profile.sub;
+      console.log(`https://madhan.info/token?userid=${userId}`);
+      fetch(`https://madhan.info/token?userid=${userId}`).then(resp => resp.json()).then((resp)=>{
+        browseraction.getCalList(resp.token);
+     })
+    })
+  } else {
+    chrome.runtime.sendMessage({
+      type: "authenticate"
+    });
+  }
 })
+
+
+
